@@ -1,0 +1,8 @@
+/.vs
+/*.EXE
+/cdrom/*.TOC
+/cdrom/*.IMG
+/cdrom/*.ISO
+/*.cpe
+/*.map
+/*.sym
