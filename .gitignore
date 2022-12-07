@@ -6,3 +6,5 @@
 /*.cpe
 /*.map
 /*.sym
+/.vscode
+/build

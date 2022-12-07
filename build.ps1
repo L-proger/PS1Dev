@@ -1,1 +1,0 @@
-& C:/psyq/projects/hiworld/build.bat
