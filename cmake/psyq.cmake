@@ -32,6 +32,19 @@ include_directories(
     ${TOOLCHAIN_DIR}/include
 )
 
+find_program(CPE2X_EXE NAMES CPE2X HINTS ${TOOLCHAIN_BIN_PATH})
+
+
+function(cpe2x TargetName)
+    add_custom_command(
+        TARGET ${TargetName}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Generating PlayStation1 EXE file"
+        COMMAND ${CPE2X_EXE} ${TargetName}.cpe
+        BYPRODUCTS ${TargetName}.exe
+    )
+endfunction()
+
 #find_program(CMAKE_ASM_COMPILER NAMES ${TOOLCHAIN_PREFIX}gcc HINTS ${TOOLCHAIN_BIN_PATH})
 #find_program(CMAKE_CPPFILT NAMES ${TOOLCHAIN_PREFIX}c++filt HINTS ${TOOLCHAIN_BIN_PATH})
 #find_program(CMAKE_DEBUGGER NAMES ${TOOLCHAIN_PREFIX}gdb HINTS ${TOOLCHAIN_BIN_PATH})
