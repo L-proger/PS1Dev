@@ -1,7 +1,6 @@
-if(NOT DEFINED TOOLCHAIN_DIR)
-    set(TOOLCHAIN_DIR "$ENV{Ps1Sdk}/compiler/mipsel-none-elf-gcc-12.2.0-binutils-2.39")
-endif()
 
+set(TOOLCHAIN_DIR "$ENV{Ps1Sdk}/compiler/mipsel-none-elf-gcc-12.2.0-binutils-2.39")
+set(PS1_SDK_TOOLS_DIR "$ENV{Ps1Sdk}/tools")
 
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ps1)
@@ -33,6 +32,20 @@ endfunction()
 set(CMAKE_EXECUTABLE_SUFFIX_C   .elf)
 set(CMAKE_EXECUTABLE_SUFFIX_CXX .elf)
 set(CMAKE_EXECUTABLE_SUFFIX_ASM .elf)
+
+
+
+find_program(ELF2X_EXE NAMES ELF2X HINTS ${PS1_SDK_TOOLS_DIR})
+function(elf2x TargetName)
+    add_custom_command(
+        TARGET ${TargetName}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Generating PlayStation1 EXE file form ELF file"
+        COMMAND ${ELF2X_EXE} ${TargetName}.elf
+        BYPRODUCTS ${TargetName}.exe
+    )
+endfunction()
+
 
 #set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 

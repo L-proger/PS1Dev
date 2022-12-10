@@ -110,7 +110,7 @@ PRIVATE
 
 gcc_add_linker_script(Test
 PRIVATE
-	${CMAKE_CURRENT_LIST_DIR}/psx-exe.ld
+	${CMAKE_CURRENT_LIST_DIR}/ps1-exe.ld
 )
 
 gcc_add_linker_script(Test
@@ -118,9 +118,5 @@ PRIVATE
 	${CMAKE_CURRENT_LIST_DIR}/default.ld
 )
 
-
 gcc_print_target_size(Test)
-
-#set(CMAKE_EXE_LINKER_FLAGS "-Xo$$80010000")
-
-#cpe2x(Test)
+elf2x(Test)
