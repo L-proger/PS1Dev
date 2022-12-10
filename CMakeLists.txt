@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
 set(CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 #Set toolchain
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
@@ -16,7 +17,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_DIR}")
 
-project(PS1 LANGUAGES C)
+project(PS1 LANGUAGES C ASM)
 add_executable(Test)
 
 set_property(TARGET Test PROPERTY MSVC_RUNTIME_LIBRARY "")
@@ -24,9 +25,102 @@ target_sources(Test
 PRIVATE
     main.c
 	debug.c
+	${CMAKE_CURRENT_LIST_DIR}/common/crt0/crt0.s
 )
 
 
-set(CMAKE_EXE_LINKER_FLAGS "-Xo$$80010000")
+target_include_directories(Test
+PRIVATE
+	C:/Psyq/include
+	${CMAKE_CURRENT_LIST_DIR}
+)
 
-cpe2x(Test)
+
+set(ARCHFLAGS
+	-march=mips1
+	-mabi=32
+	-EL
+	-fno-pic
+	-mno-shared
+	-mno-abicalls
+	-mfp32
+	-fno-stack-protector
+	-nostdlib
+	-ffreestanding
+)
+
+target_compile_options(Test
+PRIVATE
+	#-v
+	${ARCHFLAGS}
+
+	-mno-gpopt
+	-fomit-frame-pointer
+	-fno-builtin
+	-fno-strict-aliasing
+	-Wno-attributes
+
+	-g
+)
+
+
+
+
+target_link_directories(Test
+PRIVATE
+	E:/L/GameConsole/PSOne/tools/MyToolchain/psyq-4.7-converted-full/lib
+)
+
+target_link_libraries(Test
+PRIVATE
+	-Wl,--start-group
+	api
+	c
+	c2
+	card
+	comb
+	ds
+	etc
+	gpu
+	gs
+	gte
+	gun
+	hmd
+	math
+	mcrd
+	mcx
+	pad
+	press
+	sio
+	snd
+	spu
+	tap
+	-Wl,--end-group
+
+	${ARCHFLAGS}
+
+	-Wl,--oformat=elf32-littlemips
+
+	-nostdlib
+	-static
+	-Wl,--gc-sections
+
+	-g
+)
+
+gcc_add_linker_script(Test
+PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}/psx-exe.ld
+)
+
+gcc_add_linker_script(Test
+PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}/default.ld
+)
+
+
+gcc_print_target_size(Test)
+
+#set(CMAKE_EXE_LINKER_FLAGS "-Xo$$80010000")
+
+#cpe2x(Test)
