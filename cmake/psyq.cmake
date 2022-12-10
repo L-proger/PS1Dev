@@ -1,6 +1,5 @@
 if(NOT DEFINED TOOLCHAIN_DIR)
-    set(TOOLCHAIN_DIR "E:/L/GameConsole/PSOne/tools/MyToolchain/g++-mipsel-none-elf-10.3.0")
-   # set(TOOLCHAIN_DIR "C:/mipsel-none-elf-gcc-12.2.0-binutils-2.39")
+    set(TOOLCHAIN_DIR "$ENV{Ps1Sdk}/compiler/mipsel-none-elf-gcc-12.2.0-binutils-2.39")
 endif()
 
 
