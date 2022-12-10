@@ -6,5 +6,5 @@
 #include <stdio.h>
 
 extern void printDebugMessage() {
-	printf("Test print!!");
+	printf("!!!Test print!!");
 }

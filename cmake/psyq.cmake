@@ -40,7 +40,7 @@ function(elf2x TargetName)
     add_custom_command(
         TARGET ${TargetName}
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Generating PlayStation1 EXE file form ELF file"
+        COMMAND ${CMAKE_COMMAND} -E echo "Generating PlayStation1 EXE file from ELF file"
         COMMAND ${ELF2X_EXE} ${TargetName}.elf
         BYPRODUCTS ${TargetName}.exe
     )
