@@ -1,3 +1,4 @@
+#define _WCHAR_T
 #include <stdlib.h>
 #include <LIBGTE.H>
 #include <LIBGPU.H>
@@ -6,18 +7,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
-//VRAM size 1024,512
+#include "cube.h"
+#include "config.h"
 
-//#define PAL
-
-#define ORDER_TABLE_SIZE 8
-#define SCREEN_WIDTH  320
-
-#ifdef PAL
-	#define	SCREEN_HEIGHT 256
-#else
-	#define	SCREEN_HEIGHT 240
-#endif
 
 u_long _ramsize   = 0x00200000;
 u_long _stacksize = 0x00004000;
@@ -34,21 +26,55 @@ typedef struct RenderFrame {
 struct RenderFrame _renderFrames[2];
 int _currentRenderFrame = 0;
 
+
+int tim_mode;
+RECT tim_prect,tim_crect;
+int tim_uoffs,tim_voffs;
+
 void initGpu();
 void renderFrame();
 
 extern void printDebugMessage();
 
-int main() {
-	initGpu();
-	FntLoad(960, 256);
-	SetDumpFnt(FntOpen(0, 0, 320, 240, 0, 512)); 
 
-	printDebugMessage();
+extern u_long Texture_Test_64x64[];
+extern const int Texture_Test_64x64_Size;
 
-	while (1){ //Render loop
-		renderFrame();
+Cube cube;
+
+extern "C" {
+	int main() {
+		initGpu();
+		FntLoad(960, 256);
+		SetDumpFnt(FntOpen(0, 0, 320, 240, 0, 512)); 
+
+		printDebugMessage();
+
+
+		cube.Construct();
+
+		while (1){ //Render loop
+			renderFrame();
+		}
 	}
+}
+
+void loadTexture(u_long *tim, TIM_IMAGE *tparam) {
+
+    // Read TIM information (PsyQ)
+    OpenTIM(tim);
+    ReadTIM(tparam);
+
+    // Upload pixel data to framebuffer
+    LoadImage(tparam->prect, (u_long*)tparam->paddr);
+    DrawSync(0);
+
+    // Upload CLUT to framebuffer if present
+    if( tparam->mode & 0x8 ) {
+        LoadImage(tparam->crect, (u_long*)tparam->caddr);
+        DrawSync(0);
+    }
+
 }
 
 void initGpu(){
@@ -68,7 +94,7 @@ void initGpu(){
 
 	// Set clear colors
 	setRGB0(&_renderFrames[0].drawEnvironment, 63, 0, 127);
-	setRGB0(&_renderFrames[1].drawEnvironment, 63, 127, 0);
+	setRGB0(&_renderFrames[1].drawEnvironment, 63, 0, 127);
 	// Enable background clear
 	_renderFrames[0].drawEnvironment.isbg = 1;
 	_renderFrames[1].drawEnvironment.isbg = 1;
@@ -108,10 +134,21 @@ void initGpu(){
 	//GsClearOt(0, 0, &orderTable[1]);
 
 
+	TIM_IMAGE texture;
+	loadTexture(Texture_Test_64x64, &texture);
+    //Copy the TIM coordinates
+    tim_prect   = *texture.prect;
+    tim_crect   = *texture.crect;
+    tim_mode    = texture.mode;
+
+	tim_uoffs = (tim_prect.x%64)<<(2-(tim_mode&0x3));
+	tim_voffs = (tim_prect.y&0xff);
 
 	// Apply environments
 	PutDispEnv(&_renderFrames[0].displayEnvironment);
 	PutDrawEnv(&_renderFrames[0].drawEnvironment);
+
+
 
 	// enable display
 	SetDispMask(1);
@@ -119,10 +156,11 @@ void initGpu(){
 
 int frameId = 0;
 
+
 void renderFrame() {
 
 
-//ClearOTagR()
+	//ClearOTagR()
 	//currentFrameBuffer = GsGetActiveBuff();
 
 	//GsSetWorkBase((PACKET*)gpuPackets[currentFrameBuffer]);
@@ -153,27 +191,56 @@ void renderFrame() {
 	uint8_t* primitiveBuffer = _renderFrames[_currentRenderFrame].primitivesBuffer;
 
 
-	TILE* tile = (TILE*)primitiveBuffer;      // Cast next primitive
+	//ONE
 
+	SPRT* sprt = (SPRT*)primitiveBuffer;
+	setSprt(sprt);
+	setXY0(sprt, 48, 48);
+	setWH(sprt, 64, 64);
+	setUV0(sprt,                    // Set UV coordinates
+            tim_uoffs, 
+            tim_voffs);
+	setClut(sprt,               // Set CLUT coordinates from TIM to sprite
+		tim_crect.x,
+		tim_crect.y);
+	setRGB0(sprt,               // Set color of sprite, 128 is neutral
+		128, 128, 128);
+	addPrim(orderTable, sprt);
+	primitiveBuffer += sizeof(SPRT);
+
+	//Bind texture
+	DR_TPAGE* tpage = (DR_TPAGE*)primitiveBuffer;
+	setDrawTPage(tpage, 0, 1, getTPage(tim_mode & 0x3, 0, tim_prect.x, tim_prect.y) );
+	addPrim(orderTable, tpage);         // Sort primitive to OT
+	primitiveBuffer += sizeof(DR_TPAGE);    // Advance next primitive address
+
+	//Flat color tile
+	TILE* tile = (TILE*)primitiveBuffer;      // Cast next primitive
 	setTile(tile);              // Initialize the primitive (very important)
 	setXY0(tile, 32, 32);       // Set primitive (x,y) position
 	setWH(tile, 64, 64);        // Set primitive size
 	setRGB0(tile, 255, 255, 0); // Set color yellow
 	addPrim(orderTable, tile);      // Add primitive to the ordering table
-
 	primitiveBuffer += sizeof(TILE);    // Advance the next primitive pointer
+
+
+	cube.render(orderTable);
+	cube._rotation.vx += 10;
+	cube._rotation.vz += 8;
 
   	DrawOTag(orderTable + ORDER_TABLE_SIZE - 1);   // Draw the ordering table
 
 
-	
 	//GsSwapDispBuff();
 	//GsSortClear(0, 0, 255, &orderTable[currentFrameBuffer]);
 	//GsDrawOt(&orderTable[currentFrameBuffer]);
 	//ClearImage2(&r, 0xff, 0, 0);
 
 	if((frameId / 50) % 2 == 0){
-		FntPrint("EVEN");
+		if(Texture_Test_64x64_Size != 0){
+			FntPrint("OMG!123" );
+		}
+		FntPrint("EVEN" );
 	}else{
 		FntPrint("ODD");
 	}

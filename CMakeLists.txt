@@ -17,14 +17,22 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_DIR}")
 
-project(PS1 LANGUAGES C ASM)
+project(PS1 LANGUAGES C CXX ASM)
+
+set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
+
 add_executable(Test)
 
 set_property(TARGET Test PROPERTY MSVC_RUNTIME_LIBRARY "")
 target_sources(Test
 PRIVATE
-    main.c
+	cube.cpp
+	cube.h
+    main.cpp
 	debug.c
+	config.h
+	textures/Test_64x64.s
 	${CMAKE_CURRENT_LIST_DIR}/common/crt0/crt0.s
 )
 
@@ -59,7 +67,7 @@ PRIVATE
 	-fno-builtin
 	-fno-strict-aliasing
 	-Wno-attributes
-
+	-nodefaultlibs
 	-g
 )
 
@@ -73,6 +81,9 @@ PRIVATE
 
 target_link_libraries(Test
 PRIVATE
+	GCC::Cxx::NoExceptions
+	GCC::Cxx::NoRtti
+
 	-Wl,--start-group
 	api
 	c
@@ -102,6 +113,7 @@ PRIVATE
 	-Wl,--oformat=elf32-littlemips
 
 	-nostdlib
+	-nodefaultlibs
 	-static
 	-Wl,--gc-sections
 

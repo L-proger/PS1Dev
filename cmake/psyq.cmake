@@ -46,8 +46,17 @@ function(elf2x TargetName)
     )
 endfunction()
 
+if(NOT (TARGET GCC::Cxx::NoExceptions))
+    add_library(GCC::Cxx::NoExceptions INTERFACE IMPORTED)
+    target_compile_options(GCC::Cxx::NoExceptions INTERFACE $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RELEASE>>:-fno-exceptions>)
+endif()
 
-#set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+if(NOT (TARGET GCC::Cxx::NoRtti))
+    add_library(GCC::Cxx::NoRtti INTERFACE IMPORTED)
+    target_compile_options(GCC::Cxx::NoRtti INTERFACE $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:RELEASE>>:-fno-rtti>)
+endif()
+
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 #find_program(CPE2X_EXE NAMES CPE2X HINTS ${TOOLCHAIN_BIN_PATH})
 
