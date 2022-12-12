@@ -34,6 +34,7 @@ PRIVATE
 	config.h
 	textures/Test_64x64.s
 	system/crt0/crt0.s
+	system/crt0/startup.c
 )
 
 

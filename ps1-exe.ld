@@ -83,7 +83,7 @@ SECTIONS {
 	HIDDEN(_gp = ALIGN(16) + 0x7ff0);
 
 	.sdata : {
-		*(.sdata .sdata.* .gnu.linkonce.s.*)
+		*(.sdata .sdata.*)
 	} > RAM
 
 	. = ALIGN(4);

@@ -46,24 +46,9 @@ extern const int Texture_Test_64x64_Size;
 
 Cube cube;
 
-extern int __CTOR_LIST__;
-extern int __CTOR_END__;
-extern int __DTOR_LIST__;
-extern int __DTOR_END__;
 
 extern "C" {
 	int main() {
-		int n = 123456789;
-		printf("__CTOR_LIST__: %d\n", __CTOR_LIST__);
-
-		printf("__CTOR_LIST__1: 0x%16x\n",*((&__CTOR_LIST__) + 1) );
-		printf("__CTOR_LIST__2: %d\n",*((&__CTOR_LIST__) + 2) );
-
-		printf("__CTOR_END__: %d\n", __CTOR_END__);
-
-		printf("__DTOR_LIST__: %d\n", __DTOR_LIST__);
-		printf("__DTOR_END__: %d\n", __DTOR_END__);
-
 		initGpu();
 		FntLoad(960, 256);
 		SetDumpFnt(FntOpen(0, 0, 320, 240, 0, 512)); 
