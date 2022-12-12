@@ -33,7 +33,7 @@ PRIVATE
 	debug.c
 	config.h
 	textures/Test_64x64.s
-	${CMAKE_CURRENT_LIST_DIR}/common/crt0/crt0.s
+	system/crt0/crt0.s
 )
 
 
@@ -125,10 +125,6 @@ PRIVATE
 	${CMAKE_CURRENT_LIST_DIR}/ps1-exe.ld
 )
 
-gcc_add_linker_script(Test
-PRIVATE
-	${CMAKE_CURRENT_LIST_DIR}/default.ld
-)
 
 gcc_print_target_size(Test)
 elf2x(Test)

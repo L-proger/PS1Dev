@@ -27,7 +27,8 @@ static const SVECTOR cubeNormals[6]{
 
 
 
-void Cube::Construct() {
+Cube::Cube() {
+    printf("Cube constructor");
     CVECTOR colors[6] = {
         {255,   0,      0,      0},
         {0,     255,    0,      0},

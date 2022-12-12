@@ -10,17 +10,21 @@
 #include "cube.h"
 #include "config.h"
 
+#include <array>
+#include <new>
+#include <limits>
+#include <type_traits>
 
 u_long _ramsize   = 0x00200000;
 u_long _stacksize = 0x00004000;
 
 
-typedef struct RenderFrame {
+struct RenderFrame {
 	DISPENV displayEnvironment;
 	DRAWENV drawEnvironment;
 	uint8_t primitivesBuffer[0xffff / 4];
 	u_long orderTable[ORDER_TABLE_SIZE];
-}RenderFrame;
+};
 
 
 struct RenderFrame _renderFrames[2];
@@ -42,8 +46,24 @@ extern const int Texture_Test_64x64_Size;
 
 Cube cube;
 
+extern int __CTOR_LIST__;
+extern int __CTOR_END__;
+extern int __DTOR_LIST__;
+extern int __DTOR_END__;
+
 extern "C" {
 	int main() {
+		int n = 123456789;
+		printf("__CTOR_LIST__: %d\n", __CTOR_LIST__);
+
+		printf("__CTOR_LIST__1: 0x%16x\n",*((&__CTOR_LIST__) + 1) );
+		printf("__CTOR_LIST__2: %d\n",*((&__CTOR_LIST__) + 2) );
+
+		printf("__CTOR_END__: %d\n", __CTOR_END__);
+
+		printf("__DTOR_LIST__: %d\n", __DTOR_LIST__);
+		printf("__DTOR_END__: %d\n", __DTOR_END__);
+
 		initGpu();
 		FntLoad(960, 256);
 		SetDumpFnt(FntOpen(0, 0, 320, 240, 0, 512)); 
@@ -51,7 +71,8 @@ extern "C" {
 		printDebugMessage();
 
 
-		cube.Construct();
+		new(&cube) Cube();
+		//cube.Construct();
 
 		while (1){ //Render loop
 			renderFrame();
@@ -93,8 +114,8 @@ void initGpu(){
 	SetDefDrawEnv(&_renderFrames[1].drawEnvironment, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	// Set clear colors
-	setRGB0(&_renderFrames[0].drawEnvironment, 63, 0, 127);
-	setRGB0(&_renderFrames[1].drawEnvironment, 63, 0, 127);
+	setRGB0(&_renderFrames[0].drawEnvironment, 32, 32, 40);
+	setRGB0(&_renderFrames[1].drawEnvironment, 32, 32, 40);
 	// Enable background clear
 	_renderFrames[0].drawEnvironment.isbg = 1;
 	_renderFrames[1].drawEnvironment.isbg = 1;
@@ -238,7 +259,7 @@ void renderFrame() {
 
 	if((frameId / 50) % 2 == 0){
 		if(Texture_Test_64x64_Size != 0){
-			FntPrint("OMG!123" );
+			FntPrint("OMG!123456" );
 		}
 		FntPrint("EVEN" );
 	}else{

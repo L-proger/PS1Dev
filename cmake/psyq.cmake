@@ -1,5 +1,8 @@
 
-set(TOOLCHAIN_DIR "$ENV{Ps1Sdk}/compiler/mipsel-none-elf-gcc-12.2.0-binutils-2.39")
+#set(TOOLCHAIN_DIR "$ENV{Ps1Sdk}/compiler/mipsel-none-elf-gcc-12.2.0-binutils-2.39")
+set(TOOLCHAIN_DIR "$ENV{Ps1Sdk}/compiler/mipsel-none-elf-gcc-12.2.0-binutils-2.39-libstdc++")
+
+
 set(PS1_SDK_TOOLS_DIR "$ENV{Ps1Sdk}/tools")
 
 set(CMAKE_SYSTEM_NAME Generic)

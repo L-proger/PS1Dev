@@ -12,7 +12,7 @@
 class Cube {
 public:
     static constexpr short CubeSize = 128;
-    void Construct();
+    Cube();
 
     void render(u_long* orderTable);
 
