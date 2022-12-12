@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "gdb",
+            "request": "attach",
+            "name": "(gdb) Launch App",
+            "target": "localhost:3333",
+            "remote": true,
+            "stopAtConnect": true,
+            "executable": "${command:cmake.launchTargetPath}",
+            "gdbpath": "/usr/bin/gdb-multiarch",
+            "windows": {
+                "gdbpath": "${env:Ps1Sdk}/debugger/gdb-multiarch-12.1/bin/gdb.exe",
+            },
+            "cwd": "${workspaceRoot}",
+            "autorun": [
+                //"set substitute-path /project .",
+                "monitor reset shellhalt",
+                "load ./build/${command:cmake.launchTargetFilename}",
+                //"tbreak main",
+                "continue",
+            ],
+            "valuesFormatting": "parseText"
+        },
+    ]
+}
