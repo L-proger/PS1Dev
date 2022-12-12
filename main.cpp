@@ -38,26 +38,19 @@ int tim_uoffs,tim_voffs;
 void initGpu();
 void renderFrame();
 
-extern void printDebugMessage();
-
-
 extern u_long Texture_Test_64x64[];
 extern const int Texture_Test_64x64_Size;
 
 Cube cube;
 
+int testGlobalConstants = 7;
 
 extern "C" {
 	int main() {
+		printf("Main: %d\n", testGlobalConstants);
 		initGpu();
 		FntLoad(960, 256);
 		SetDumpFnt(FntOpen(0, 0, 320, 240, 0, 512)); 
-
-		printDebugMessage();
-
-
-		new(&cube) Cube();
-		//cube.Construct();
 
 		while (1){ //Render loop
 			renderFrame();

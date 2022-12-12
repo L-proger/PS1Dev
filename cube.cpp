@@ -28,7 +28,7 @@ static const SVECTOR cubeNormals[6]{
 
 
 Cube::Cube() {
-    printf("Cube constructor");
+    printf("Cube constructor\n");
     CVECTOR colors[6] = {
         {255,   0,      0,      0},
         {0,     255,    0,      0},
@@ -88,9 +88,4 @@ void Cube::render(u_long* orderTable){
     }
 
     PopMatrix();
-}
-
-
-void printDebugMessage() {
-	printf("!!!22222Test print!!");
 }
